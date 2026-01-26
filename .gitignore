@@ -1,0 +1,13 @@
+/target/
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Test output
+test-output/
+reports/
+screenshots/
+
+# OS
+.DS_Store
