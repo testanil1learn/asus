@@ -6,24 +6,44 @@ pipeline {
         maven 'Maven-3.9.6'
     }
 
+    parameters {
+        choice(name: 'BROWSER', choices: ['chrome', 'firefox'], description: 'Select browser')
+        choice(name: 'ENV', choices: ['qa', 'stage'], description: 'Select environment')
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
-                git 'https://github.com/users/testanil1learn/project1/your-repo.git'
+                git branch: 'main',
+                    url: 'https://github.com/testanil1learn/asus.git'
             }
         }
 
         stage('Build & Test') {
             steps {
-                bat 'mvn clean test'
+                bat """
+                    mvn clean test ^
+                    -Dbrowser=${params.BROWSER} ^
+                    -Denv=${params.ENV}
+                """
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: '**/target/**/*.html', fingerprint: true
-            junit '**/target/surefire-reports/*.xml'
+            archiveArtifacts artifacts: 'target/**', fingerprint: true
+            junit 'target/surefire-reports/*.xml'
+            echo 'Pipeline execution completed'
+        }
+
+        failure {
+            echo 'Tests failed ❌ – please check reports'
+        }
+
+        success {
+            echo 'Build and tests successful ✅'
         }
     }
 }
